@@ -1,5 +1,5 @@
 ---
-title: "Sentiment Analysis"
+title: "Natural-Language Processing"
 author: "Julio Gonzalez"
 date: "5/8/2018"
 output:
@@ -45,11 +45,11 @@ Hi there, the Stats Whisper here, presenting a whole new topic that is a hot com
 
 The amount of data genereated by social networks is safe to say enourmous. What if we could use that same data to find insightful information on consumer perspective on just about anything. Well that's exactly what we are going to do. 
 
-#Movie Reviews
+#NLP for Movie Reviews
 
 Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Furthermore, these movie rating sites are highly correlated with each and here we have some data to confirm that. 
 
-```{r}
+```{r, warning=FALSE}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
 t1 = fandango[,-c(1,19:22)]
 corrplot(cor(t1), method="circle")
@@ -86,7 +86,7 @@ deadpool1 = rbind(DP_051618,DP_051718)
 
 Let's take a closer look at the data.
 ```{r}
-head(deadpool1[,-1])
+head(deadpool1)
 summary(deadpool1)
 ``` 
 
@@ -96,7 +96,7 @@ By giving the data a quick glance, we see that our data captures a particular tw
 
 ![Here is that tweet. Our data captures some of the retweets that made this tweet go viral.](tweet.png)
 
-##Regular Expression
+#Regular Expression
 
 Now for the good stuff. First, we will create a vector that conains all of the text from the tweets. 
 ```{r}
@@ -123,9 +123,9 @@ twtxt[2] #print clean text
 
 After we removed all the unuseful stuff, we now see clean text that we can use to extract the sentiment of the tweet. 
 
-##Syntax NLP
+#Syntax NLP
 
-As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get the core of sentiment we must first remove stopwords. Stopwords are commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we also remove numbers and punctuation. The following code does this:
+As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get the core of sentiment we must first remove stopwords. Stopwords are simply commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we remove numbers and punctuation as well. The following code does this:
 
 ```{r}
 Encoding(twtxt) <- "latin1"     				
@@ -136,29 +136,34 @@ mycorpus <- tm_map(mycorpus, content_transformer(tolower))	# Create corpus of te
 mycorpus <- tm_map(mycorpus, stripWhitespace)			# Remove white space.
 mycorpus <- tm_map(mycorpus, removePunctuation)			# Remove punctuation.
 mycorpus <- tm_map(mycorpus, removeNumbers)			# Remove numbers.
-mycorpus <- tm_map(mycorpus, removeWords, stopwords())		# Remove stop words. 
-mycorpus <- tm_map(mycorpus, removeWords, c("deadpool"))	# Remove other words.
+mycorpus <- tm_map(mycorpus, removeWords, stopwords())	# Remove stop words
+mycorpus <- tm_map(mycorpus, removeWords, c("deadpool")) # Remove other words.
 mycorpus[[2]]$content     # View the content of tweet.
 ``` 
-Now we can see how the original tweet has been reduced to a few simple strings. With this data at hand, we can create a word cloud 
+Now we can see how the original tweet has been reduced to a few simple strings. With this data at hand, we can create a word cloud. 
 
 ```{r, eval=FALSE}
 # Create word cloud to look for trends.
 wordcloud(mycorpus, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
 ``` 
 
-As expected, we see that word cloud is dominated by the words found in the viral tweet. 
+As expected, we see the word cloud is dominated by the words found in the viral tweet. 
 
 
-##Semantic NLP
+#Semantic NLP
 
 Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus to try to find some useful insight into these tweets. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does it compares the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply the same thing. The score will depend on the dictionary that you are using. 
 
-```{r}
+```{r, warning=FALSE}
 # Perform the sentiment analysis on Tweets.
 final <- data.frame(text=sapply(mycorpus, identity), stringsAsFactors=F)
 sent <- sentiment(final$text)     # Pull sentiment.
 sent
+``` 
+
+Here every row represents the output of the sentiment analysis for all of the 34,000 tweets where the "sentiment" column displays the score given to that particular tweet. 
+
+```{r}
 mean(sent$sentiment)     # average sentiment
 ``` 
 
@@ -170,7 +175,6 @@ Here we see it visually.
 aggtwitter <- aggregate(sent$sentiment, by=list(sent$element_id), FUN=mean)
 ggplot(data=aggtwitter, aes(x=Group.1, y=x)) + geom_bar(stat="identity") +
 ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") 
-
 ``` 
 
 ```{r}
@@ -212,19 +216,19 @@ twtxt2 <- gsub("@.*:", "", twtxt2) # Removes screen names from retweets
 Encoding(twtxt2) <- "latin1"     				
 twtxt2 <- iconv(twtxt2, from="latin1", to="ASCII", sub="")     	# Convert to ASCII format.
 
-mycorpus2 <- Corpus(VectorSource(twtxt2))     			# Create corpus.
+mycorpus2 <- Corpus(VectorSource(twtxt2))     		# Create corpus.
 mycorpus2 <- tm_map(mycorpus2, content_transformer(tolower))	# Create corpus of text.
-mycorpus2 <- tm_map(mycorpus2, stripWhitespace)			# Remove white space.
-mycorpus2 <- tm_map(mycorpus2, removePunctuation)			# Remove punctuation.
+mycorpus2 <- tm_map(mycorpus2, stripWhitespace)		# Remove white space.
+mycorpus2 <- tm_map(mycorpus2, removePunctuation)		# Remove punctuation.
 mycorpus2 <- tm_map(mycorpus2, removeNumbers)			# Remove numbers.
-mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())		# Remove stop words. 
-mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool"))	# Remove other words.
+mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())	# Remove stop words. 
+mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool")) # Remove other words.
 
 # Perform the sentiment analysis on Tweets.
 final <- data.frame(text=sapply(mycorpus2, identity), stringsAsFactors=F)
-sent <- sentiment(final$text)     # Pull sentiment.
+sent <- sentiment(final$text)    # Pull sentiment.
 
-mean(sent$sentiment)     # average sentiment
+mean(sent$sentiment)    # average sentiment
 ``` 
 
 ```{r, eval=FALSE}
@@ -277,17 +281,15 @@ head(DFW_trends)
 ``` 
 
 
-##Arsenal
+#Arsenal
 ```{r, eval=FALSE}
 ## Twitter Sentiment Analysis
 Emery1 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-20", until = "2018-05-21")     # Pull Twitter feed for before Emery appointment
 Emery1 <- twListToDF(Emery1)     # Convert into a data frame for analysis.
-#save(Emery1, file="Emery1.RData")
 ``` 
 
 ```{r, eval=FALSE}
 ## Twitter Sentiment Analysis
 Emery2 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-22", until = "2018-05-23")     # Pull Twitter feed for after Emery appointment.
 Emery2 <- twListToDF(Emery2)     # Convert into a data frame for analysis.
-save(Emery2, file="Emery2.RData")
 ``` 
