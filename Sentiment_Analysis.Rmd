@@ -47,7 +47,7 @@ The amount of data genereated by social networks is safe to say enourmous. What 
 
 #Movie Reviews
 
-Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/) is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Furthermore, these movie rating sites are highly correlated with each and here we have some data to confirm that. 
+Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Furthermore, these movie rating sites are highly correlated with each and here we have some data to confirm that. 
 
 ```{r}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
@@ -62,7 +62,7 @@ I propose a solution: why don't we use the massive amount of user generated data
 Paradoxially, in order for someone to give a horror movie a high rating is by being scared out of your socks. 
 
 
-##Deadpool
+Deadpool
 
 I will confess that I am a big superhero fan and will watch anything superhero related.
 
@@ -71,8 +71,8 @@ In order to conduct this analysis the most important thing we will need wil be t
 
 ```{r, eval=FALSE}
 ## Pulling Twitter Data 
-Deadpool <- searchTwitter("Deadpool", n=34000, lang="en", since = "2018-05-16", until = "2018-05-17")     # Pull Twitter feed for Deadpool.
-Deadpool1<- twListToDF(Deadpool)     # Convert into a data frame for analysis.
+deadpool1 <- searchTwitter("Deadpool", n=34000, lang="en", since = "2018-05-16", until = "2018-05-17")     # Pull Twitter feed for Deadpool.
+deadpool1<- twListToDF(deadpool1)     # Convert into a data frame for analysis.
 ``` 
 
 In the above code, we pulled 34,000 tweets containing the word "Deadpool" right up until the day before the premiere (movie debuted on May 18, 2018 in the US). Our goal is to analyze the sentiment before the movie was released to use it as a reference point and compare it to the sentiment after the movie premiered to see if we can find something there. 
@@ -80,36 +80,57 @@ In the above code, we pulled 34,000 tweets containing the word "Deadpool" right 
 ```{r,include=FALSE, warning=FALSE}
 load("/Users/juliogonzalez/Documents/website/Sentiment-Analysis/Deadpool_05162018.RData")
 load("/Users/juliogonzalez/Documents/website/Sentiment-Analysis/Deadpool_05172018.RData")
-Deadpool1 = rbind(DP_051618,DP_051718)
+deadpool1 = rbind(DP_051618,DP_051718)
 ``` 
 
 
 Let's take a closer look at the data.
 ```{r}
-head(Deadpool1[,-1])
-summary(Deadpool1)
+head(deadpool1[,-1])
+summary(deadpool1)
 ``` 
 
-Here we see a summary statistics of the dataframe along with a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interest in the text of the tweet itself but this is just to show you that there the potential to conduct an even further analysis. 
+Here we see a summary statistics of the dataframe along with a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interest in the text of the tweet itself but this is just to show you that there is potential to conduct an even further analysis using Twitter data.
 
+By giving the data a quick glance, we see that our data captures a particular tweet that went viral leading up to the movie premiere.
 
+![Here is that tweet. Our data captures some of the retweets that made this tweet go viral.](tweet.png)
+
+##Regular Expression
+
+Now for the good stuff. First, we will create a vector that conains all of the text from the tweets. 
 ```{r}
-print(Deadpool1[2,1])
+twtxt <- deadpool1$text     # Collect text for sentiment analysis.
 ``` 
 
+We will see that the tweets are "dirty" meaning that they contain unusefull information that is not needed to do sentiment analysis. In order to clean them up, we will use something called [regular expressions](http://stat.ethz.ch/R-manual/R-devel/library/base/html/regex.html){target="_blank"}. You can think of regular expression as a very powerful string search language that can be used to replace individual or entire sections of text.
+
+For example, this the text for the viral aforementioned tweet.
 ```{r}
-twtxt <- Deadpool1$text     # Collect text for sentiment analysis.
-class(twtxt)		# character
+twtxt[2] 
 ``` 
+
+We can see it contains a link, a screen name and special characters which are of no use to us. However in order to remove them, we must first identify them using regular expressions. 
 
 ```{r}
 twtxt <- gsub("http://t.co/[a-z,A-Z,0-9]*{8}" , "", twtxt)     	# Clean up Tweets. Remove certain characters.
 twtxt <- gsub("https://t.co/[a-z,A-Z,0-9]*{8}", "", twtxt)
-# twtxt <- gsub("\\S+...", "", twtxt)
-head(twtxt)
+twtxt <- gsub("RT", "", twtxt) # Removes "RT" indicating a retweet
+twtxt <- gsub("@.*:", "", twtxt) # Removes screen names from retweets
 
+twtxt[2] #print clean text
+``` 
+
+After we removed all the unuseful stuff, we now see clean text that we can use to extract the sentiment of the tweet. 
+
+##Syntax NLP
+
+As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get the core of sentiment we must first remove stopwords. Stopwords are commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we also remove numbers and punctuation. The following code does this:
+
+```{r}
 Encoding(twtxt) <- "latin1"     				
 twtxt <- iconv(twtxt, from="latin1", to="ASCII", sub="")     	# Convert to ASCII format.
+
 mycorpus <- Corpus(VectorSource(twtxt))     			# Create corpus.
 mycorpus <- tm_map(mycorpus, content_transformer(tolower))	# Create corpus of text.
 mycorpus <- tm_map(mycorpus, stripWhitespace)			# Remove white space.
@@ -117,26 +138,42 @@ mycorpus <- tm_map(mycorpus, removePunctuation)			# Remove punctuation.
 mycorpus <- tm_map(mycorpus, removeNumbers)			# Remove numbers.
 mycorpus <- tm_map(mycorpus, removeWords, stopwords())		# Remove stop words. 
 mycorpus <- tm_map(mycorpus, removeWords, c("deadpool"))	# Remove other words.
-mycorpus[[3]]$content     # View the content of corpus.
+mycorpus[[2]]$content     # View the content of tweet.
 ``` 
+Now we can see how the original tweet has been reduced to a few simple strings. With this data at hand, we can create a word cloud 
 
-```{r}
+```{r, eval=FALSE}
 # Create word cloud to look for trends.
 wordcloud(mycorpus, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
+``` 
 
+As expected, we see that word cloud is dominated by the words found in the viral tweet. 
+
+
+##Semantic NLP
+
+Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus to try to find some useful insight into these tweets. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does it compares the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply the same thing. The score will depend on the dictionary that you are using. 
+
+```{r}
 # Perform the sentiment analysis on Tweets.
 final <- data.frame(text=sapply(mycorpus, identity), stringsAsFactors=F)
 sent <- sentiment(final$text)     # Pull sentiment.
 sent
 mean(sent$sentiment)     # average sentiment
+``` 
 
+Finally, we find that average sentiment falls at 0.0589 which is slightly but not greatly positive. 
+
+Here we see it visually.
+```{r}
 # Sentiment per Tweet
 aggtwitter <- aggregate(sent$sentiment, by=list(sent$element_id), FUN=mean)
 ggplot(data=aggtwitter, aes(x=Group.1, y=x)) + geom_bar(stat="identity") +
 ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") 
 
-# The sentiment is positive.
+``` 
 
+```{r}
 sent2 <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
 hist(sent2)
 mean(sent2)     # average sentiment
@@ -150,7 +187,58 @@ mean(sent2)     # average sentiment
 ``` 
 
 
-# Twitter Text Analysis
+
+
+```{r, eval=FALSE}
+## Pulling Twitter Data 
+deadpool2 <- searchTwitter("Deadpool", n=34000, lang="en", since = "2018-05-18", until = "2018-05-19")     # Pull Twitter feed for Deadpool.
+deadpool2<- twListToDF(deadpool2)     # Convert into a data frame for analysis.
+```
+
+```{r,include=FALSE, warning=FALSE}
+load("/Users/juliogonzalez/Documents/website/Sentiment-Analysis/DP_051818.RData")
+load("/Users/juliogonzalez/Documents/website/Sentiment-Analysis/DP_051918.RData")
+deadpool2 = rbind(DP_051818,DP_051918)
+``` 
+
+
+```{r, warning=FALSE}
+twtxt2 <- deadpool2$text 
+twtxt2 <- gsub("http://t.co/[a-z,A-Z,0-9]*{8}" , "", twtxt2)     	# Clean up Tweets. Remove certain characters.
+twtxt2 <- gsub("https://t.co/[a-z,A-Z,0-9]*{8}", "", twtxt2)
+twtxt2 <- gsub("RT", "", twtxt2) # Removes "RT" indicating a retweet
+twtxt2 <- gsub("@.*:", "", twtxt2) # Removes screen names from retweets
+
+Encoding(twtxt2) <- "latin1"     				
+twtxt2 <- iconv(twtxt2, from="latin1", to="ASCII", sub="")     	# Convert to ASCII format.
+
+mycorpus2 <- Corpus(VectorSource(twtxt2))     			# Create corpus.
+mycorpus2 <- tm_map(mycorpus2, content_transformer(tolower))	# Create corpus of text.
+mycorpus2 <- tm_map(mycorpus2, stripWhitespace)			# Remove white space.
+mycorpus2 <- tm_map(mycorpus2, removePunctuation)			# Remove punctuation.
+mycorpus2 <- tm_map(mycorpus2, removeNumbers)			# Remove numbers.
+mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())		# Remove stop words. 
+mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool"))	# Remove other words.
+
+# Perform the sentiment analysis on Tweets.
+final <- data.frame(text=sapply(mycorpus2, identity), stringsAsFactors=F)
+sent <- sentiment(final$text)     # Pull sentiment.
+
+mean(sent$sentiment)     # average sentiment
+``` 
+
+```{r, eval=FALSE}
+# Create word cloud to look for trends.
+wordcloud(mycorpus2, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
+``` 
+
+
+
+
+
+
+
+
 
 San Antonio
 ```{r, eval=FALSE}
@@ -192,14 +280,14 @@ head(DFW_trends)
 ##Arsenal
 ```{r, eval=FALSE}
 ## Twitter Sentiment Analysis
-Emery1 <- searchTwitter("Emery", n=18000, lang="en", since = "2018-05-20", until = "2018-05-21")     # Pull Twitter feed for before Emery appointment
+Emery1 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-20", until = "2018-05-21")     # Pull Twitter feed for before Emery appointment
 Emery1 <- twListToDF(Emery1)     # Convert into a data frame for analysis.
-save(Emery1, file="Emery1.RData")
+#save(Emery1, file="Emery1.RData")
 ``` 
 
 ```{r, eval=FALSE}
 ## Twitter Sentiment Analysis
-Emery2 <- searchTwitter("Emery", n=18000, lang="en", since = "2018-05-22", until = "2018-05-23")     # Pull Twitter feed for after Emery appointment.
+Emery2 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-22", until = "2018-05-23")     # Pull Twitter feed for after Emery appointment.
 Emery2 <- twListToDF(Emery2)     # Convert into a data frame for analysis.
 save(Emery2, file="Emery2.RData")
 ``` 
