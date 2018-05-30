@@ -29,27 +29,23 @@ library(wordcloud)
 library(plyr)   
 library(ggplot2)
 library(readr)
-
-# Generate an access token to obtain your Twitter Access Token and Access Token Secret.
-consumer_key    <- "BkiIHNzE2BvQhbRYVpkbZgGTA"
-consumer_secret <-"zHAcSayUgKlfkksuf57oB0CMqFwDtgGI4TkDurXkEgNjHsqpnx"
-access_token  <- "991503034650976257-W3MQKW99A0ec2pcm3kBw6ddXBIwkji5"
-access_secret <- "bjhEqauHjM2gLPn7qUJvzThTWUW0vN3XVR8AkxsbphbD7"
-setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)     # Setup Twitter open authorization. Select 2.
+library(ggthemes)
 ```
 
 !Working Document!
 
 
-Hi there, the Stats Whisper here, presenting a whole new topic that is a hot commodity these days which is social network analysis and sentiment analysis. Believe it or not but social media can have a powerful impact on a business. Can you imagine a company losing $1.3 billion (not a typo, as in 1,300,000,000 bucks) for a single tweet. Well that was what reportely happened to Snapchat Inc. when Kylie Jenner tweeted about snapchat alegedly dropping their stock value by 7.5%. 
+Hi there, the Stats Whisper here, presenting a whole new topic that is a hot commodity these days which is social network analysis and sentiment analysis. Believe it or not but social media can have a powerful impact on a business. Can you imagine a company losing $1.3 billion (not a typo, as in 1,300,000,000 bucks) for a single tweet? Well that was what reportely happened to Snapchat Inc. when Kylie Jenner tweeted about snapchat alegedly dropping their stock value by 7.5%. 
 
 The amount of data genereated by social networks is safe to say enourmous. What if we could use that same data to find insightful information on consumer perspective on just about anything. Well that's exactly what we are going to do. 
+
+<br>
 
 #NLP for Movie Reviews
 
 Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Furthermore, these movie rating sites are highly correlated with each and here we have some data to confirm that. 
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
 t1 = fandango[,-c(1,19:22)]
 corrplot(cor(t1), method="circle")
@@ -62,9 +58,11 @@ I propose a solution: why don't we use the massive amount of user generated data
 Paradoxially, in order for someone to give a horror movie a high rating is by being scared out of your socks. 
 
 
-Deadpool
+<br>
 
-I will confess that I am a big superhero fan and will watch anything superhero related.
+##Deadpool
+
+I will confess that I am a big superhero fan and will watch anything superhero related. 
 
 
 In order to conduct this analysis the most important thing we will need wil be the data. The great thing about Twitter is that it has an API (application programming interface) where instead of writing a script that will scrap the tweets from the webpage, we have direct access to the database where all the data on the tweets live. On top of that, there is an R package that has all the code wrapped up in a function that will do all of the leg work for you. All you have to do is pass the parameters for what you want to search for. Let's see how it works. 
@@ -87,14 +85,20 @@ deadpool1 = rbind(DP_051618,DP_051718)
 Let's take a closer look at the data.
 ```{r}
 head(deadpool1)
-summary(deadpool1)
 ``` 
 
-Here we see a summary statistics of the dataframe along with a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interest in the text of the tweet itself but this is just to show you that there is potential to conduct an even further analysis using Twitter data.
+Here we see a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interest in the text of the tweet itself but this is just to show you that there is potential to conduct an even further analysis using Twitter data.
+
+```{r}
+summary(deadpool1)
+``` 
+Here is also some summary statistcs.
 
 By giving the data a quick glance, we see that our data captures a particular tweet that went viral leading up to the movie premiere.
 
 ![Here is that tweet. Our data captures some of the retweets that made this tweet go viral.](tweet.png)
+
+<br>
 
 #Regular Expression
 
@@ -123,6 +127,8 @@ twtxt[2] #print clean text
 
 After we removed all the unuseful stuff, we now see clean text that we can use to extract the sentiment of the tweet. 
 
+<br>
+
 #Syntax NLP
 
 As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get the core of sentiment we must first remove stopwords. Stopwords are simply commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we remove numbers and punctuation as well. The following code does this:
@@ -149,45 +155,59 @@ wordcloud(mycorpus, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35
 
 As expected, we see the word cloud is dominated by the words found in the viral tweet. 
 
+<br>
 
 #Semantic NLP
 
-Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus to try to find some useful insight into these tweets. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does it compares the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply the same thing. The score will depend on the dictionary that you are using. 
+Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus to try to find some useful insight into these tweets. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does it compares the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply the same thing. The score will depend on the dictionary that you are using. This function defaults to a combined and augmented version of Jocker's (2017) [originally exported by the syuzhet package] & Rinker's augmented Hu & Liu (2004) dictionaries in the lexicon package, however, this may not be appropriate, for example, in the context of children in a classroom. The user may (is encouraged) to provide/augment the dictionary (see the as_key function). For instance the word "sick" in a high school setting may mean that something is good, whereas "sick" used by a typical adult indicates something is not right or negative connotation (deixis). 
 
 ```{r, warning=FALSE}
 # Perform the sentiment analysis on Tweets.
 final <- data.frame(text=sapply(mycorpus, identity), stringsAsFactors=F)
-sent <- sentiment(final$text)     # Pull sentiment.
-sent
+sent_combo <- sentiment(final$text)     # Pull sentiment.
+sent_combo
+
 ``` 
 
 Here every row represents the output of the sentiment analysis for all of the 34,000 tweets where the "sentiment" column displays the score given to that particular tweet. 
 
 ```{r}
-mean(sent$sentiment)     # average sentiment
+mean(sent_combo$sentiment)     # average sentiment
 ``` 
 
-Finally, we find that average sentiment falls at 0.0589 which is slightly but not greatly positive. 
+Finally, we find that average sentiment falls at 0.0562 which is slightly but not greatly positive. 
 
 Here we see it visually.
 ```{r}
 # Sentiment per Tweet
-aggtwitter <- aggregate(sent$sentiment, by=list(sent$element_id), FUN=mean)
+aggtwitter <- aggregate(sent_combo$sentiment, by=list(sent_combo$element_id), FUN=mean)
+
+#line graph
 ggplot(data=aggtwitter, aes(x=Group.1, y=x)) + geom_bar(stat="identity") +
-ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") 
+ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_solarized_2(light = FALSE)
+
+#histogram
+ggplot(data=aggtwitter, aes(x))+geom_histogram(bins = 10) +theme_solarized_2(light = FALSE)
 ``` 
 
-```{r}
-sent2 <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
-hist(sent2)
-mean(sent2)     # average sentiment
+As explained previously, you will get different results based on the sentiment dictionary you are using. Here we will be using syuzhet dictionary.
 
-# sent3 <- syuzhet::get_nrc_sentiment(final$text)     # Get more detailed sentiment.
-# head(sent3)
-# 
-# sentsum <- colSums(sent3)
-# barplot(sentsum	     , cex.names=0.5)
-# barplot(sentsum[9:10], cex.names=0.5)
+```{r}
+sent_syuzhet <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
+
+df = data.frame(sent_syuzhet)
+ggplot(df,aes(sent_syuzhet))+geom_histogram(bins = 10)
+mean(sent_syuzhet)     # average sentiment
+``` 
+
+Now let's go a little further than just positive and negative.
+```{r, eval=FALSE}
+sent_nrc <- syuzhet::get_nrc_sentiment(final$text)     # Get more detailed sentiment.
+head(sent_nrc)
+
+sentsum <- colSums(sent_nrc)
+barplot(sentsum	     , cex.names=0.5)
+barplot(sentsum[9:10], cex.names=0.5)
 ``` 
 
 
@@ -195,7 +215,7 @@ mean(sent2)     # average sentiment
 
 ```{r, eval=FALSE}
 ## Pulling Twitter Data 
-deadpool2 <- searchTwitter("Deadpool", n=34000, lang="en", since = "2018-05-18", until = "2018-05-19")     # Pull Twitter feed for Deadpool.
+deadpool2 <- searchTwitter("Deadpool", n=34000, lang="en", since = "2018-05-18", until = "2018-05-19")     # Pull Twitter feed for Deadpool after premiere
 deadpool2<- twListToDF(deadpool2)     # Convert into a data frame for analysis.
 ```
 
@@ -223,12 +243,6 @@ mycorpus2 <- tm_map(mycorpus2, removePunctuation)		# Remove punctuation.
 mycorpus2 <- tm_map(mycorpus2, removeNumbers)			# Remove numbers.
 mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())	# Remove stop words. 
 mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool")) # Remove other words.
-
-# Perform the sentiment analysis on Tweets.
-final <- data.frame(text=sapply(mycorpus2, identity), stringsAsFactors=F)
-sent <- sentiment(final$text)    # Pull sentiment.
-
-mean(sent$sentiment)    # average sentiment
 ``` 
 
 ```{r, eval=FALSE}
@@ -236,60 +250,41 @@ mean(sent$sentiment)    # average sentiment
 wordcloud(mycorpus2, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
 ``` 
 
+```{r}
+# Perform the sentiment analysis on Tweets.
+final2 <- data.frame(text=sapply(mycorpus2, identity), stringsAsFactors=F)
+sent_combo2 <- sentiment(final2$text)    # Pull sentiment.
 
-
-
-
-
-
-
-
-San Antonio
-```{r, eval=FALSE}
-avloc <- availableTrendLocations()
-head(avloc)
-
-# avloc contains information on the name of the location, the country, and its respective woeid (where on earth ID). 
-# woeid is needed to get the trending topics of a chosen location at a given hour. 
-
-avloc[avloc$name == "San Antonio",]
-
-SA_ID <- avloc[avloc$name == "San Antonio",3]     # San Antonio's woeid is 2487796. 
-SA_trends <- getTrends(woeid=SA_ID)     # Get trending topics in San Antonio.
-head(SA_trends)
-``` 
-
-Houston
-```{r, eval=FALSE}
-HoustonID <- avloc[avloc$name == "Houston",3]
-H_trends <- getTrends(woeid=HoustonID)     # Get trending topics in Houston.
-head(H_trends)
-``` 
-
-Austin
-```{r, eval=FALSE}
-AustinID <- avloc[avloc$name == "Austin",3]
-A_trends <- getTrends(woeid=AustinID)     # Get trending topics in Austin.
-head(A_trends)
-``` 
-
-Dallas
-```{r, eval=FALSE}
-DallasID <- avloc[avloc$name == "Dallas-Ft. Worth",3] 
-DFW_trends <- getTrends(woeid=DallasID)     # Get trending topics in Dallas-Ft.Worth.
-head(DFW_trends)
+mean(sent_combo2$sentiment)    # average sentiment
 ``` 
 
 
-#Arsenal
-```{r, eval=FALSE}
-## Twitter Sentiment Analysis
-Emery1 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-20", until = "2018-05-21")     # Pull Twitter feed for before Emery appointment
-Emery1 <- twListToDF(Emery1)     # Convert into a data frame for analysis.
+
+```{r}
+# Sentiment per Tweet
+aggtwitter2 <- aggregate(sent_combo2$sentiment, by=list(sent_combo2$element_id), FUN=mean)
+
+#line graph
+ggplot(data=aggtwitter2, aes(x=Group.1, y=x)) + geom_bar(stat="identity") +
+ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_solarized_2(light = FALSE)
+
+#histogram
+ggplot(data=aggtwitter2, aes(x))+geom_histogram(bins = 10) +theme_solarized_2(light = FALSE)
 ``` 
 
+```{r}
+sent_syuzhet2 <- get_sentiment(final2$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
+
+df = data.frame(sent_syuzhet2)
+ggplot(df,aes(sent_syuzhet2))+geom_histogram(bins = 10)
+mean(sent_syuzhet2)     # average sentiment
+```
+
 ```{r, eval=FALSE}
-## Twitter Sentiment Analysis
-Emery2 <- searchTwitter("Emery", n=17000, lang="en", since = "2018-05-22", until = "2018-05-23")     # Pull Twitter feed for after Emery appointment.
-Emery2 <- twListToDF(Emery2)     # Convert into a data frame for analysis.
+sent_nrc2 <- syuzhet::get_nrc_sentiment(final2$text)     # Get more detailed sentiment.
+head(sent_nrc2)
+
+sentsum2 <- colSums(sent_nrc2)
+barplot(sentsum2	     , cex.names=0.5)
+barplot(sentsum2[9:10], cex.names=0.5)
 ``` 
