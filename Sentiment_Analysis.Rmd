@@ -206,8 +206,11 @@ sent_nrc <- syuzhet::get_nrc_sentiment(final$text)     # Get more detailed senti
 head(sent_nrc)
 
 sentsum <- colSums(sent_nrc)
-barplot(sentsum	     , cex.names=0.5)
-barplot(sentsum[9:10], cex.names=0.5)
+df_nrc = data.frame(sentsum)
+df_nrc$sentiments = rownames(df_nrc)
+
+ggplot(df_nrc, aes(sentiments,sentsum)) + geom_col()
+ggplot(df_nrc[9:10,], aes(sentiments,sentsum)) + geom_col()
 ``` 
 
 
@@ -285,6 +288,9 @@ sent_nrc2 <- syuzhet::get_nrc_sentiment(final2$text)     # Get more detailed sen
 head(sent_nrc2)
 
 sentsum2 <- colSums(sent_nrc2)
-barplot(sentsum2	     , cex.names=0.5)
-barplot(sentsum2[9:10], cex.names=0.5)
+df_nrc2 = data.frame(sentsum2)
+df_nrc2$sentiments = rownames(df_nrc2)
+
+ggplot(df_nrc2, aes(sentiments,sentsum)) + geom_col()
+ggplot(df_nrc2[9:10,], aes(sentiments,sentsum)) + geom_col()
 ``` 
