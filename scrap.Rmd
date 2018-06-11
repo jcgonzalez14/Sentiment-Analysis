@@ -1,0 +1,40 @@
+---
+title: "scrap"
+author: "Julio Gonzalez"
+date: "6/10/2018"
+output: html_document
+---
+
+
+Negative vs Positive
+```{r, echo=FALSE}
+#Negative vs Positive Only
+highchart() %>% 
+  hc_add_series(data = df_nrc[9:10,], type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum, color = sentiments)) %>%
+  hc_xAxis(categories = df_nrc[9:10,]$sentiments,
+           title = list(
+             text = "Sentiments"
+           )
+  ) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, beta = 20))
+```
+
+
+
+
+Negative vs Positive
+```{r, echo=FALSE}
+#Negative vs Positive Only
+highchart() %>% 
+  hc_add_series(data = df_nrc2[9:10,], type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum2, color = sentiments)) %>%
+  hc_xAxis(categories = df_nrc2[9:10,]$sentiments,
+           title = list(
+             text = "Sentiments"
+           )
+  ) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, beta = 20))
+```
