@@ -29,10 +29,12 @@ library(ggplot2)
 library(readr)
 library(ggthemes)
 library(highcharter)
+library(kableExtra)
+load("~/Documents/website/Sentiment-Analysis/Untitled.RData")
 ```
 [_Julio C. Gonzalez_](https://jcgonzalez14.github.io/) 
 
-_May 16, 2018_
+_May 8, 2018_
 
 !Working Document!
  
@@ -48,17 +50,18 @@ The amount of data genereated by social networks is safe to say enourmous. What 
 
 #NLP for Movie Reviews
 
-Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate what the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Sure, some people add a their opinion on the movie but who has time to read all of them? Furthermore, these movie rating sites are highly correlated with each and here we have some data to confirm that. 
+Ever had a heated disscution with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treseaure movie comes out? Naturally, you go, faute-de-mieux, online to investigate what the reviews are for the movie. Well, I won't get into the particulars as to why of those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statisically inclined website FiveThirtyEight) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Sure, some people add a their opinion on the movie but who has time to read all of them? Furthermore, these movie rating sites are highly correlated with each and here we have some [data](https://github.com/fivethirtyeight/data/tree/master/fandango){target="_blank"} to confirm that. 
 
 ```{r, warning=FALSE, message=FALSE}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
 t1 = fandango[,c(2:5)]
-corrplot(cor(t1), method="circle")
+#corrplot(cor(t1), method="circle")
+hchart(cor(t1)) %>% hc_add_theme(hc_theme_darkunica())
 ```
 
 In the above diagram, we did a simple correlation plot between the movie ratings given by the major movie review sites and found all of them to be highly correlated with each other. For those non-stats heads out there, a correlation plot deploys a simple staticical algorithm known as the Pearson correlation value that finds how correlated two variables are to each other. There are several ways this formula can be written but here is one that I think makes the more intuitive sense. $$r = \frac{\sum_{i = 1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i = 1}^{n}(x_i - \bar{x})^2}\sqrt{\sum_{i = 1}^{n}(y_i - \bar{y})^2}}$$ The scale falls between -1 and 1 (inclusive) where a value of -1 means that the direc
 
-I propose a solution: why don't we use the massive amount of user generated data of social networks to try and understand what are the reasons a user _feels_ a certain way towards a movie. Instead of using the small sample size of the users on movie review sites, let's include a larger, more diverse and a more representive sample of what the average paying customer that drives films success. In addition, we might be able to extract what elements of movies makes it more likely for a good review.
+I propose a solution: why don't we use the massive amount of user generated data of social networks to try and understand what are the reasons a user _feels_ a certain way towards a movie. Instead of using the small sample size of the users on movie review sites, let's include a larger, more diverse and a more representive sample of what the average paying customer that drives films success. In addition, we might be able to extract what elements of movies makes it more likely for a good review. I don't mean to get all Freudian but it could give us a window into the subconcious feelings towards a particular movie.
 
 In order to do that we would be using natural language processing. The following diagram gives a rough explaination as to what encompases NLP and how it is divided. There are other areas where NLP has application significance but for the most part it falls under these two categories.
 
@@ -99,7 +102,7 @@ Let's take a closer look at the data.
 head(deadpool1)
 ``` 
 
-Here we see a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interest in the text of the tweet itself but this is just to show you that there is potential to conduct an even further analysis using Twitter data.
+Here we see a snippet of the first 6 rows of the data. It starts off with text of the tweet followed by all sorts of information like when it was created, the device used to tweet, the screen name of the user, etc. We are primarily interested in the text of the tweet itself but this is just to show you that there is potential to conduct an even further analysis using Twitter data.
 
 ```{r}
 summary(deadpool1)
@@ -133,7 +136,9 @@ twtxt <- gsub("http://t.co/[a-z,A-Z,0-9]*{8}" , "", twtxt)     	# Clean up Tweet
 twtxt <- gsub("https://t.co/[a-z,A-Z,0-9]*{8}", "", twtxt)
 twtxt <- gsub("RT", "", twtxt) # Removes "RT" indicating a retweet
 twtxt <- gsub("@.*:", "", twtxt) # Removes screen names from retweets
+``` 
 
+```{r}
 twtxt[2] #print clean text
 ``` 
 
@@ -150,7 +155,7 @@ Encoding(twtxt) <- "latin1"
 twtxt <- iconv(twtxt, from="latin1", to="ASCII", sub="")     	# Convert to ASCII format.
 
 mycorpus <- Corpus(VectorSource(twtxt))     			# Create corpus.
-mycorpus <- tm_map(mycorpus, content_transformer(tolower))	# Create corpus of text.
+mycorpus <- tm_map(mycorpus, content_transformer(tolower))	# Create corpus of text while making all characters lowercase.
 mycorpus <- tm_map(mycorpus, stripWhitespace)			# Remove white space.
 mycorpus <- tm_map(mycorpus, removePunctuation)			# Remove punctuation.
 mycorpus <- tm_map(mycorpus, removeNumbers)			# Remove numbers.
@@ -160,9 +165,9 @@ mycorpus[[2]]$content     # View the content of tweet.
 ``` 
 Now we can see how the original tweet has been reduced to a few simple strings. With this data at hand, we can create a word cloud. 
 
-```{r, eval=FALSE}
+```{r, echo=FALSE}
 # Create word cloud to look for trends.
-wordcloud(mycorpus, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
+wordcloud(mycorpus, scale=c(5, 0.5), max.words=150,random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
 ``` 
 
 As expected, we see the word cloud is dominated by the words found in the viral tweet. 
@@ -176,14 +181,13 @@ Now we get to the meat and potatoes of NLP and apply sentiment analysis to the o
 ```{r, warning=FALSE}
 # Perform the sentiment analysis on Tweets.
 final <- data.frame(text=sapply(mycorpus, identity), stringsAsFactors=F)
-sent_combo <- sentiment(final$text)     # Pull sentiment.
-sent_combo
-?sentiment
+#sent_combo <- sentiment(final$text)     # Pull sentiment.
+head(sent_combo)
 ``` 
 
 Here every row represents the output of the sentiment analysis for all of the 34,000 tweets where the "sentiment" column displays the score given to that particular tweet. 
 
-```{r, eval=FALSE}
+```{r}
 mean(sent_combo$sentiment)     # average sentiment
 ``` 
 
@@ -192,56 +196,76 @@ Finally, we find that average sentiment falls at 0.0562 which is just slightly p
 Here we see it visually.
 ```{r, echo=FALSE}
 # Sentiment per Tweet
-aggtwitter <- aggregate(sent_combo$sentiment, by=list(sent_combo$element_id), FUN=mean)
+aggtwitter <- aggregate(round(sent_combo$sentiment,3), by=list(sent_combo$element_id), FUN=mean)
 
 #line graph (couldn't use highcharts)
 ggplot(data=aggtwitter,aes(x=Group.1, y=x))+geom_bar(stat="identity", fill="#EA1313") +
 ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_dark()
-
 ``` 
 
-Here we see the sentiment score ploted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral.
+Here we see the sentiment score ploted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral. Feel free to zoom in the histogram by selecting across several columns.
 
-```{r,echo=FALSE}
-#histogram
-ggplot(data=aggtwitter, aes(x))+geom_histogram(bins = 10, fill="#EA1313", color = "grey") + theme_dark() + labs(x="Sentiment Score",y="Count")
-
-
-hchart(aggtwitter$x, color = "#B71C1C", name = "Price") %>% 
-  hc_title(text = "You can zoom me")
-
-h2 <- hist(aggtwitter$x, breaks = 20, plot = FALSE)
-hchart(h2)
+```{r, echo=FALSE}
+hchart(aggtwitter$x, type = 'histogram', name = "Cumulative Sentiments",
+       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       showInLegend = FALSE
+       ) %>% 
+  hc_xAxis(title = list(
+             text = "Sentiment Score"
+           )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
+  hc_tooltip(formatter = JS("function(){
+                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
+                          }"))
 ``` 
-Feel free to zoom into the histogram.
-
-This histogram comfirms our previous point.
 
 As explained previously, you will get different results based on the sentiment dictionary you are using. Here, we will be using syuzhet dictionary.
 
-```{r, eval=FALSE}
-sent_syuzhet <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
-
-df = data.frame(sent_syuzhet)
-ggplot(df,aes(sent_syuzhet))+geom_histogram(bins = 10)
+```{r}
+#sent_syuzhet <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
 mean(sent_syuzhet)     # average sentiment
 ``` 
 
 Using the syuzhet dictionary, we now get an average sentiment score of about 0.2 which is not that much terribly more than when we used previously. 
 
-Generally, it is expected that the ratio between positive and negative will be correlated with the movie review which is great but not very insightful. We can actually go at a much deeper level by acquiring a sentiment score of more particular kind of emotions. We can achieve that by using the NCR dictionary where each tweet results in a score to 8 additional categories that now include sentiments like: anger, anticipation, disgust, fear, joy, sadness and trust. 
 
-```{r, eval=FALSE}
-sent_nrc <- get_nrc_sentiment(final$text)     # Get more detailed sentiment.
-head(sent_nrc)
+```{r,echo=FALSE}
+df = data.frame(sent_syuzhet)
 
-sentsum <- colSums(sent_nrc)
-df_nrc = data.frame(sentsum)
-df_nrc$sentiments = rownames(df_nrc)
+hchart(df$sent_syuzhet, type = 'histogram', name = "Cumulative Sentiments",
+       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       showInLegend = FALSE
+       ) %>%
+  hc_xAxis(title = list(
+             text = "Sentiment Score"
+           )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
+  hc_tooltip(formatter = JS("function(){
+                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
+                          }")
+  )%>%
+  hc_title(text = "Sentiment Analysis using Syuzhet Dictionary")
+
 ``` 
 
 
-```{r, eval=FALSE}
+Generally, it is expected that the ratio between positive and negative will be correlated with the movie review which is great but not very insightful. We can actually go at a much deeper level by acquiring a sentiment score of more particular kind of emotions. We can achieve that by using the NCR dictionary where each tweet results in a score to 8 additional categories that now include sentiments like: anger, anticipation, disgust, fear, joy, sadness and trust. 
+
+```{r, echo=FALSE}
+#sent_nrc <- get_nrc_sentiment(final$text)     # Get more detailed sentiment.
+head(sent_nrc)
+``` 
+
+
+```{r, echo=FALSE}
+sentsum <- colSums(sent_nrc)
+df_nrc = data.frame(sentsum)
+df_nrc$sentiments = rownames(df_nrc)
+
 #changing options to replace space with comma
 hcoptslang <- getOption("highcharter.lang")
 hcoptslang$thousandsSep <- ","
@@ -259,21 +283,22 @@ highchart() %>%
   hc_add_theme(hc_theme_darkunica()) %>%
   hc_chart(options3d = list(enabled = TRUE, beta = 20))
 
-
-#Negative vs Positive Only
-highchart() %>% 
-  hc_add_series(data = df_nrc[9:10,], type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum, color = sentiments)) %>%
-  hc_xAxis(categories = df_nrc[9:10,]$sentiments,
-           title = list(
-             text = "Sentiments"
-           )
-  ) %>%
-  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
-  hc_add_theme(hc_theme_darkunica()) %>%
-  hc_chart(options3d = list(enabled = TRUE, beta = 20))
-```
+``` 
 
 
+
+
+
+
+###############################################################################################
+
+
+#Part 2
+
+
+Having inspected the sentiment prior to Deadpool 2's premier, now we would like to see the sentiment as more and more people see the movie. 
+
+First we will pull tweets on the day it premiered and the day after. 
 
 ```{r, eval=FALSE}
 ## Pulling Twitter Data 
@@ -307,52 +332,124 @@ mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())	# Remove stop words.
 mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool")) # Remove other words.
 ``` 
 
-```{r, eval=FALSE}
+```{r, echo=FALSE}
 # Create word cloud to look for trends.
 wordcloud(mycorpus2, scale=c(5, 0.5), max.words=100, random.order=F, rot.per=0.35, use.r.layout=F, colors=brewer.pal(8, "Dark2"))
 ``` 
 
-```{r,eval=FALSE}
+```{r,echo=FALSE}
 # Perform the sentiment analysis on Tweets.
 final2 <- data.frame(text=sapply(mycorpus2, identity), stringsAsFactors=F)
-sent_combo2 <- sentiment(final2$text)    # Pull sentiment.
-
-mean(sent_combo2$sentiment)    # average sentiment
+#sent_combo2 <- sentiment(final2$text)    # Pull sentiment.
 ``` 
 
+```{r}
+mean(sent_combo2$sentiment)    # average sentiment
+``` 
+We can see the sentiment has actually gone up. 
 
 
-```{r, eval=FALSE}
+```{r, echo=FALSE}
 # Sentiment per Tweet
 aggtwitter2 <- aggregate(sent_combo2$sentiment, by=list(sent_combo2$element_id), FUN=mean)
 
 #line graph
-ggplot(data=aggtwitter2, aes(x=Group.1, y=x)) + geom_bar(stat="identity") +
-ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_solarized_2(light = FALSE)
-
-#histogram
-ggplot(data=aggtwitter2, aes(x))+geom_histogram(bins = 10) +theme_solarized_2(light = FALSE)
+ggplot(data=aggtwitter2, aes(x=Group.1, y=x)) + geom_bar(stat="identity", fill = "#EA1313") +
+ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_dark()
 ``` 
 
-```{r, eval=FALSE}
-sent_syuzhet2 <- get_sentiment(final2$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
+```{r, echo=FALSE}
+hchart(aggtwitter2$x, type = 'histogram', name = "Cumulative Sentiments",
+       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       showInLegend = FALSE
+       ) %>% 
+  hc_xAxis(title = list(
+             text = "Sentiment Score"
+           )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
+  hc_tooltip(formatter = JS("function(){
+                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
+                          }"))
+``` 
 
-df = data.frame(sent_syuzhet2)
-ggplot(df,aes(sent_syuzhet2))+geom_histogram(bins = 10)
+
+```{r}
+#sent_syuzhet2 <- get_sentiment(final2$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
 mean(sent_syuzhet2)     # average sentiment
+``` 
+
+```{r,echo=FALSE}
+df2 = data.frame(sent_syuzhet2)
+
+hchart(df2$sent_syuzhet2, type = 'histogram', name = "Cumulative Sentiments",
+       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       showInLegend = FALSE
+       ) %>%
+  hc_xAxis(title = list(
+             text = "Sentiment Score"
+           )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
+  hc_tooltip(formatter = JS("function(){
+                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
+                          }")
+  )%>%
+  hc_title(text = "Sentiment Analysis using Syuzhet Dictionary")
 ```
 
-```{r, eval=FALSE}
-sent_nrc2 <- syuzhet::get_nrc_sentiment(final2$text)     # Get more detailed sentiment.
+```{r}
+#sent_nrc2 <- get_nrc_sentiment(final2$text)     # Get more detailed sentiment.
+``` 
 
+```{r,echo=FALSE}
 sentsum2 <- colSums(sent_nrc2)
 df_nrc2 = data.frame(sentsum2)
 df_nrc2$sentiments = rownames(df_nrc2)
 
-ggplot(df_nrc2, aes(sentiments,sentsum2)) + geom_col()
-ggplot(df_nrc2[9:10,], aes(sentiments,sentsum2)) + geom_col()
+#plots all the sentiments
+highchart() %>% 
+  hc_add_series(data = df_nrc2, type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum2, color = sentiments)) %>%
+  hc_xAxis(categories = df_nrc2$sentiments,
+           title = list(
+             text = "Sentiments"
+           )
+  ) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, beta = 20))
 ``` 
 
+#Comparisons
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```{r, echo=FALSE}
+  
+tbl = data.frame(
+  dictionary_used = c("combo","syuzhet","bing","afinn","nrc"),
+  prior_sent = c(mean(sent_combo$sentiment),mean(sent_syuzhet),mean(sent_bing),mean(sent_afinn),mean(sent_nrC)),
+  after_sent = c(mean(sent_combo2$sentiment),mean(sent_syuzhet2),mean(sent_bing2),mean(sent_afinn2),mean(sent_nrC2))
+)
+
+tbl$difference =  tbl$after_sent - tbl$prior_sent
+tbl$percent_change = paste0(round((tbl$diff / tbl$prior_sent)*100,2), "%")
+colnames(tbl) = c("Dictionary Used", "Sentiment Before Movie Premier","Sentiment After Movie Premier","Difference","Percent Change")
+
+kable(tbl) %>% kable_styling(bootstrap_options = c("striped", "hover","responsive", "bordered"), font_size = 20) %>%
+  #add_header_above(c(" ", "Polarity Score" = 2, " " = 2)) %>%
+  footnote(general = "Combo dictionary is using a combination of the two dictionaries")
+
+``` 
+
+<br>
+
+
+#Conclusion
 
 Using NLP with social media data is a different type of approach to movie reviews and one in which one can argue provides a closer and more organic assessment of public perception towards a particular film.
 
