@@ -211,14 +211,34 @@ hchart(aggtwitter$x, type = 'histogram', name = "Cumulative Sentiments",
        showInLegend = FALSE
        ) %>% 
   hc_xAxis(title = list(
-             text = "Sentiment Score"
+             text = "Sentiment Score",
+             style = list(
+               color = "white"
+             )
+           ),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
            )) %>% 
-  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_yAxis(title =list(text = "Count of Sentiment Scores",
+                       style = list(
+                         color = "white"
+                       )),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+           )
+           ) %>%
   hc_add_theme(hc_theme_darkunica()) %>%
   hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
   hc_tooltip(formatter = JS("function(){
                           return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
-                          }"))
+                          }"),
+             style = list(
+               fontSize = "17px"
+             ))
 ``` 
 
 As explained previously, you will get different results based on the sentiment dictionary you are using. Here, we will be using syuzhet dictionary.
@@ -235,18 +255,36 @@ Using the syuzhet dictionary, we now get an average sentiment score of about 0.2
 df = data.frame(sent_syuzhet)
 
 hchart(df$sent_syuzhet, type = 'histogram', name = "Cumulative Sentiments",
-       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       color = "#B71C1C", breaks = 29, edgeColor = "#9D1313", edgeWidth = 2,
        showInLegend = FALSE
        ) %>%
-  hc_xAxis(title = list(
-             text = "Sentiment Score"
-           )) %>% 
-  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
   hc_add_theme(hc_theme_darkunica()) %>%
+  hc_xAxis(title = list(
+             text = "Sentiment Score",
+             style = list(
+               color = "white")
+           ),
+           labels = list(
+             style = list(
+               fontSize = "16px")
+           )
+  ) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores",
+                       style = list(
+                         color = "white"
+                       )),
+           labels = list(
+             style = list(
+               fontSize = "16px")
+           )
+  ) %>%
   hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
   hc_tooltip(formatter = JS("function(){
                           return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
-                          }")
+                          }"),
+             style = list(
+               fontSize = "17px"
+             )
   )%>%
   hc_title(text = "Sentiment Analysis using Syuzhet Dictionary")
 
@@ -276,12 +314,27 @@ highchart() %>%
   hc_add_series(data = df_nrc, type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum, color = sentiments)) %>%
   hc_xAxis(categories = df_nrc$sentiments,
            title = list(
-             text = "Sentiments"
+             text = "Sentiments",
+             style = list(
+               color = "white")
+           ),
+           labels = list(
+             style = list(
+               fontSize = "16px")
            )
   ) %>%
-  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments",
+                       style = list(
+                         color = "white"
+                       )),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+  )) %>%
   hc_add_theme(hc_theme_darkunica()) %>%
-  hc_chart(options3d = list(enabled = TRUE, beta = 20))
+  hc_chart(options3d = list(enabled = TRUE, beta = 20)) %>%
+  hc_tooltip(style = list(fontSize = "17px"))
 
 ``` 
 
@@ -328,7 +381,7 @@ mycorpus2 <- tm_map(mycorpus2, content_transformer(tolower))	# Create corpus of 
 mycorpus2 <- tm_map(mycorpus2, stripWhitespace)		# Remove white space.
 mycorpus2 <- tm_map(mycorpus2, removePunctuation)		# Remove punctuation.
 mycorpus2 <- tm_map(mycorpus2, removeNumbers)			# Remove numbers.
-mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords())	# Remove stop words. 
+mycorpus2 <- tm_map(mycorpus2, removeWords, stopwords()) #Remove stop words.
 mycorpus2 <- tm_map(mycorpus2, removeWords, c("deadpool")) # Remove other words.
 ``` 
 
@@ -364,41 +417,35 @@ hchart(aggtwitter2$x, type = 'histogram', name = "Cumulative Sentiments",
        showInLegend = FALSE
        ) %>% 
   hc_xAxis(title = list(
-             text = "Sentiment Score"
-           )) %>% 
-  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+             text = "Sentiment Score",
+             style = list(
+               color = "white"
+             )
+           ),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+  )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores",
+                       style = list(
+                         color = "white"
+                       )),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+  )) %>%
   hc_add_theme(hc_theme_darkunica()) %>%
   hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
   hc_tooltip(formatter = JS("function(){
                           return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
-                          }"))
+                          }"),
+             style = list(
+               fontSize = "17px"
+             ))
 ``` 
 
-
-```{r}
-#sent_syuzhet2 <- get_sentiment(final2$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
-mean(sent_syuzhet2)     # average sentiment
-``` 
-
-```{r,echo=FALSE}
-df2 = data.frame(sent_syuzhet2)
-
-hchart(df2$sent_syuzhet2, type = 'histogram', name = "Cumulative Sentiments",
-       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
-       showInLegend = FALSE
-       ) %>%
-  hc_xAxis(title = list(
-             text = "Sentiment Score"
-           )) %>% 
-  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
-  hc_add_theme(hc_theme_darkunica()) %>%
-  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
-  hc_tooltip(formatter = JS("function(){
-                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
-                          }")
-  )%>%
-  hc_title(text = "Sentiment Analysis using Syuzhet Dictionary")
-```
 
 ```{r}
 #sent_nrc2 <- get_nrc_sentiment(final2$text)     # Get more detailed sentiment.
@@ -412,20 +459,35 @@ df_nrc2$sentiments = rownames(df_nrc2)
 #plots all the sentiments
 highchart() %>% 
   hc_add_series(data = df_nrc2, type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum2, color = sentiments)) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
   hc_xAxis(categories = df_nrc2$sentiments,
            title = list(
-             text = "Sentiments"
-           )
-  ) %>%
-  hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
-  hc_add_theme(hc_theme_darkunica()) %>%
+             text = "Sentiments",
+             style = list(
+               color = "white")),
+           labels = list(
+             style = list(
+               fontSize = "16px")
+  )) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments",
+                       style = list(
+                         color = "white"
+                       )),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+  )) %>%
+  hc_tooltip(style = list(
+    fontSize = "17px"
+  )) %>%
   hc_chart(options3d = list(enabled = TRUE, beta = 20))
 ``` 
 
 #Comparisons
 <style>
 .table-hover > tbody > tr:hover { 
-  background-color: #f4f442;
+  background-color: #994f4f;
 }
 </style>
 ```{r, echo=FALSE}
@@ -438,11 +500,11 @@ tbl = data.frame(
 
 tbl$difference =  tbl$after_sent - tbl$prior_sent
 tbl$percent_change = paste0(round((tbl$diff / tbl$prior_sent)*100,2), "%")
-colnames(tbl) = c("Dictionary Used", "Sentiment Before Movie Premier","Sentiment After Movie Premier","Difference","Percent Change")
+colnames(tbl) = c("Dictionary Used", "Sentiment Before Deadpool 2 Premier","Sentiment After Deadpool 2 Premier","Difference","Percent Change")
 
 kable(tbl) %>% kable_styling(bootstrap_options = c("striped", "hover","responsive", "bordered"), font_size = 20) %>%
   #add_header_above(c(" ", "Polarity Score" = 2, " " = 2)) %>%
-  footnote(general = "Combo dictionary is using a combination of the two dictionaries")
+  footnote(general = "Combo dictionary is using a combined and augmented version of Jocker’s (2017) & Rinker’s augmented Hu & Liu (2004) dictionaries")
 
 ``` 
 

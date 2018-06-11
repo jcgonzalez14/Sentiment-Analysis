@@ -21,6 +21,38 @@ highchart() %>%
   hc_chart(options3d = list(enabled = TRUE, beta = 20))
 ```
 
+```{r}
+highchart() %>% 
+  hc_add_series(data = df_nrc2, type = "column", showInLegend = FALSE, name = "Total Value", hcaes(x = sentiments, y = sentsum2, color = sentiments)) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_xAxis(categories = df_nrc2$sentiments,
+           title = list(
+             text = "Sentiments",
+             style = list(
+               color = "white"
+             )
+           ),
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+           )
+  ) %>%
+  hc_yAxis(title =list(text = "Sum of Sentiments",
+                       style = list(
+                         color = "white"
+                       )),
+           
+           labels = list(
+             style = list(
+               fontSize = "16px"
+             )
+           )) %>%
+  hc_tooltip(style = list(
+    fontSize = "17px"
+  )) %>%
+  hc_chart(options3d = list(enabled = TRUE, beta = 20))
+```
 
 
 
@@ -37,4 +69,31 @@ highchart() %>%
   hc_yAxis(title =list(text = "Sum of Sentiments")) %>%
   hc_add_theme(hc_theme_darkunica()) %>%
   hc_chart(options3d = list(enabled = TRUE, beta = 20))
+```
+
+
+```{r}
+#sent_syuzhet2 <- get_sentiment(final2$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
+mean(sent_syuzhet2)     # average sentiment
+``` 
+
+
+```{r,echo=FALSE}
+df2 = data.frame(sent_syuzhet2)
+
+hchart(df2$sent_syuzhet2[], type = 'histogram', name = "Cumulative Sentiments",
+       color = "#B71C1C", breaks = 27, edgeColor = "#9D1313", edgeWidth = 2,
+       showInLegend = FALSE
+       ) %>%
+  hc_xAxis(title = list(
+             text = "Sentiment Score"
+           )) %>% 
+  hc_yAxis(title =list(text = "Count of Sentiment Scores")) %>%
+  hc_add_theme(hc_theme_darkunica()) %>%
+  hc_chart(options3d = list(enabled = TRUE, alpha = 13)) %>%
+  hc_tooltip(formatter = JS("function(){
+                          return ('Total: ' + this.y + ' <br> Sentiment Range: ' + Math.round((this.point.x - 0.05)*100) / 100 + ' to ' + Math.round((this.point.x + 0.05)*100) / 100)
+                          }")
+  )%>%
+  hc_title(text = "Sentiment Analysis using Syuzhet Dictionary")
 ```
