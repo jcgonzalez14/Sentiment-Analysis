@@ -50,7 +50,7 @@ The field of NLP is deep and extensive that can feel a bit overwhelming so let's
 
 ![Natural Language Processing Diagram](NLP_diagram.png)
 
-As you can see, there are many applications of nlp but our focus today will be mainly to the first two categories, syntax and semantic and I'll be explaining what those are along the way. But first I want to ask you a simple question: what movies do you like to see?
+As you can see, there are many applications of NLP but will narrow our focus today to the first two categories, syntax and semantic and I'll be explaining what those are along the way. But first I want to ask you a simple question: what movies do you like to see and why?
 
 <br>
 
@@ -58,7 +58,7 @@ As you can see, there are many applications of nlp but our focus today will be m
 
 Ever had a heated discussion with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treasure movie comes out? Naturally, you go, faute-de-mieux, online to investigate what the reviews are for the movie. Well, I won't get into the particulars as to why those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statistically inclined website, FiveThirtyEight.com) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Sure, some people add their comments on the movie but does that mean that people from all over the world will have the same impression or opinion? I would argue that they don't. Plus, who has time to read all those reviews? Furthermore, these movie rating sites are highly correlated with each and here we have some [data](https://github.com/fivethirtyeight/data/tree/master/fandango){target="_blank"} to confirm that. 
 
-```{r, warning=FALSE, message=FALSE, eval=FALSE}
+```{r, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
 t1 = fandango[,c(2:6)]
 hchart(cor(t1))
@@ -86,7 +86,7 @@ hchart(cor(t1)) %>% hc_add_theme(hc_theme_darkunica()) %>%
            ))
 ```
 
-In the above diagram, we did a simple correlation plot between the movie ratings given by the major movie review sites and found all of them to be highly correlated with each other. For those non-stats heads out there, a correlation plot deploys a simple statistical algorithm known as the Pearson correlation value that finds how correlated two variables are to each other. There are several ways this formula can be written but here is one that I think makes the more intuitive sense. $$r = \frac{\sum_{i = 1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i = 1}^{n}(x_i - \bar{x})^2}\sqrt{\sum_{i = 1}^{n}(y_i - \bar{y})^2}}$$ The scale falls between -1 and 1 (inclusive) where a value of 1 means that the direction of the relationship between two variables is a perfect positive relationship meaning, that as the score of one website goes up, the score of the oposing website goes up by the exact proportional amount.
+Using the data we acquired from FiveThirtyEight.com, we did a simple correlation plot between the movie ratings given by the major movie review sites and found all of them to be highly correlated with each other. For those non-stats heads out there, a correlation plot deploys a simple statistical algorithm known as the Pearson correlation value that finds how correlated two variables are to each other. There are several ways this formula can be written but here is one that I think makes the more intuitive sense. $$r = \frac{\sum_{i = 1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i = 1}^{n}(x_i - \bar{x})^2}\sqrt{\sum_{i = 1}^{n}(y_i - \bar{y})^2}}$$ The scale falls between -1 and 1 (inclusive) where a value of 1 means that the direction of the relationship between two variables is a perfect positive relationship meaning, that as the score of one website goes up, the score of the oposing website goes up by the exact proportional amount.
 
 We observe that all scores are above 0.6, indicating a positive correlation between all the major movie review websites. What this is saying is that whatever score you see on one website then you pretty much have an idea what the score is on the other websites. The main point is that there is no variety in terms of scoring while in real life we see people disagree about movies all the time.  
 
@@ -169,7 +169,7 @@ twtxt <- gsub("@.*:", "", twtxt) # Removes screen names from retweets
 twtxt[2] #print clean text
 ``` 
 
-After we removed all the usefulness stuff, we now see clean text that we can use to extract the sentiment of the tweet. 
+After we removed all the unuseful fluff, we are left with clean and lean text vector that we can use to extract the sentiment of the tweet. 
 
 <br>
 
@@ -210,20 +210,14 @@ Now we get to the meat and potatoes of NLP and apply sentiment analysis to the o
 final <- data.frame(text=sapply(mycorpus, identity), stringsAsFactors=F)
 sent_combo <- sentiment(final$text)     # Pull sentiment.
 ``` 
-Small preview.
+Here is a small preview of the results look like.
 ```{r}
 head(sent_combo)
 ``` 
 
 Every row represents the output of the sentiment analysis for all of the 34,000 tweets where the "sentiment" column displays the score given to that particular tweet. 
 
-```{r}
-mean(sent_combo$sentiment)     # average sentiment
-``` 
-
-Finally, we find that average sentiment falls at 0.0562 which is just slightly positive. 
-
-Here we see it visually.
+Let's see it visually.
 ```{r, echo=FALSE}
 # Sentiment per Tweet
 aggtwitter <- aggregate(round(sent_combo$sentiment,3), by=list(sent_combo$element_id), FUN=mean)
@@ -233,7 +227,7 @@ ggplot(data=aggtwitter,aes(x=Group.1, y=x))+geom_bar(stat="identity", fill="#EA1
 ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_dark()
 ``` 
 
-Here we see the sentiment score plotted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral. Feel free to zoom in the histogram by selecting across several columns.
+Here we see the sentiment scores plotted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral. Feel free to zoom in the following histogram by selecting across several columns.
 
 ```{r, echo=FALSE}
 hchart(aggtwitter$x, type = 'histogram', name = "Cumulative Sentiments",
@@ -272,7 +266,15 @@ hchart(aggtwitter$x, type = 'histogram', name = "Cumulative Sentiments",
   hc_title(text = "Polarity Scores Histogram")
 ``` 
 
-As explained previously, you will get different results based on the sentiment dictionary you are using. Here, we will be using syuzhet dictionary.
+```{r}
+mean(sent_combo$sentiment)     # average sentiment
+``` 
+
+Finally, we find an average sentiment score of 0.0562 which is just slightly positive. 
+
+<br>
+
+As explained previously, you will get different results based on the sentiment dictionary you are using. Let's try using the syuzhet dictionary.
 
 ```{r, eval=FALSE}
 sent_syuzhet <- get_sentiment(final$text, method="syuzhet")     # method="bing", "afinn", "nrc", "stanford" 
@@ -281,7 +283,7 @@ sent_syuzhet <- get_sentiment(final$text, method="syuzhet")     # method="bing",
 mean(sent_syuzhet)     # average sentiment
 ``` 
 
-Using the syuzhet dictionary, we now get an average sentiment score of about 0.2 which is not that much terribly more than what we got previously. 
+Using the syuzhet dictionary, we now get an average sentiment score of about 0.2 which is not that terribly more than what we got previously. 
 
 Here is this an interactive histogram.
 ```{r,echo=FALSE}
@@ -378,7 +380,7 @@ It is surprising to find a large count of the trust sentiment. Maybe considering
 
 ##Part 2
 
-Having inspected the sentiment prior to Deadpool 2's premier, we would like to do the same analysis as more and more people see and tweet about the movie. 
+Having inspected the sentiment prior to the premier to Deadpool 2, we would like to do the same analysis after people have seen the movie and are tweeting about it.
 
 In order to do that, we will redo the same data pulling and data cleaning drill we did earlier only this time we'll use data from the day it premiered and the day after.
 
@@ -563,7 +565,7 @@ While on one hand we observe a large increase in the total scores of surprise an
 
 Even though we saw an average increase in overall positive score, we simultaneously observe an increase in negative sentiments. The large increase in surprise scores seems to overshadow all the small increments of negative scores. So it looks like Deadpool 2 is doing well as a whole but not in every facet of the movie. 
 
-A word of caution is advised with the intrepations of these sentiments because the feelings of fear and disgust are not always pernicious premonitions. Consider how the success of a horror depends on you actually feeling scared which is strictly a negative emotion while it, paradoxically, invokes a positive attitude towards that particular film. Although Deadpool is an overall comical film, it does make you laugh by intertwining gory violence, drug use and sexual references to it's humor.  
+A word of caution is advised with the intrepations of these sentiments as the feelings of fear and disgust are not always pernicious premonitions. Consider how the success of a horror movie depends on you actually feeling scared which is strictly a negative emotion while it, paradoxically, invokes a positive attitude towards that particular film. Although Deadpool is an overall comical film, it does make you laugh by intertwining gory violence, drug use and sexual references to it's humor.  
 
 Akin to the multitute of interpretations to the Leonardo Da Vinci's Mona Lisa masterpiece, sentiment analysis gives us a compiled sentiment portrait of Deadpool tweets but it up to the viewer on how to interpret these findings.
 
@@ -576,9 +578,9 @@ Using NLP with social media data is a different type of approach to movie review
 
 Since social networks are perpetually generating data, they provide a real time information stream of the consumer's preferences comparable to how a company's stock value is a measure of its performance. Instead of the traditional approach where one sees a movie then writes a review one time, we have a constant feed of data from which we can learn from.
 
-Thinking on a much larger scale, we can expand this to include multiple social networks that include more niche users like Reddit or Quora or even comments on YouTube and do comparisons across networks. In addition, since the production of a movie incorporates people who are continuously in the public's eye, we can observe the effect of an important event in an actor's life outside of films just like the death of Paul Walker for the Fast and the Furious franchise. Analogous to how music sales shoot through the roof in the aftermath of a musician's death.
+Thinking on a much larger scale, we can expand this to include multiple social networks that include more niche users like Reddit or Quora or even comments on YouTube and do comparisons across networks. Furthermore, since the production of a movie incorporates people who are continuously in the public's eye, we can observe the effect of an important event in an actor's life outside of films like the death of Paul Walker for the Fast and the Furious franchise. We can compare the effect similar to how music sales shoot through the roof in the aftermath of a musician's death.
 
-To bring this home, we have unprecedented access to a multi facet view towards the film industry. In truth, while we now have more data available, extracting the signal rather than the noise from this data is, even today, an incredibly difficult task. If you pile privacy concerns on top of that, it can really get messy. Sure movie production companies with deep pockets can use this information to improve their bottom line, but the question is _should_ they have access to this type of intimate information. Who knew that a simple tweet provides so much information about you.
+To bring this home, we have unprecedented access to a multi facet view towards not just the film industry but pretty much anything you can think of. In truth, while we now have more data available, extracting the signal rather than the noise from this data is, even today, an incredibly difficult task. If you pile privacy concerns on top of that, it can really get messy. Sure movie production companies with deep pockets can use this information to improve their bottom line, but the question is _should_ they have access to this type of information. Who knew that a simple tweet provides so much information about you.
 
 Therefore, I will leaving you with a movie quote. In the words of Peter Parker in remembrance to his uncle Ben at the end of the Spider-Man movie,
 
