@@ -48,7 +48,7 @@ Hi there, the Stats Whisperer here, back presenting a hot topic these days in th
 
 The field of NLP is deep and extensive that can feel a bit overwhelming so let's take a look at it from a high level. The following diagram gives a rough explanation as to what encompasses NLP and how it is loosely divided. 
 
-![Natural Language Processing Diagram](NLP_diagram.png)
+![Natural Language Processing Diagram](NLP_diagram2.png)
 
 As you can see, there are many applications of NLP but will narrow our focus today to the first two categories, syntax and semantic and I'll be explaining what those are along the way. But first I want to ask you a simple question: what movies do you like to see and why?
 
@@ -101,7 +101,7 @@ Can you imagine a company losing $1.3 billion (not a typo, as in 1,300,000,000 b
 
 ##Deadpool 2
 
-To see the power of NLP in action, we are going to acquire data about a recent movie. For no particular reason (other than the fact that I am a huge Marvel movie fan, even though my all-time favorite superhero is Batman), we are going to use [Deadpool 2](https://en.wikipedia.org/wiki/Deadpool_2) for this example. 
+To see the power of NLP in action, we are going to acquire data about a recent movie. For no particular reason other than the fact that I loved the first Deadpool movie and am a huge Marvel movie fan, even though my all-time favorite superhero is Batman (Justice League was hard pill to swallow), we are going to use [Deadpool 2](https://en.wikipedia.org/wiki/Deadpool_2) for this example. 
 
 In order to conduct this analysis, the most important thing we will need will be the data. The great thing about Twitter is the existance of an API ([application programming interface](https://medium.freecodecamp.org/what-is-an-api-in-english-please-b880a3214a82){target="_blank"}) where instead of writing a script that will scrap the tweets from a webpage, we have direct access to the database where all the data on the tweets lives. On top of that, there is an R package that has all the code wrapped up in a function that will do all of the leg work for you. All you have to do is pass the parameters for what you want to search for and you're off to the races. Let's see how it works. 
 
