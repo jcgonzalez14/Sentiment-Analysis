@@ -32,13 +32,11 @@ library(highcharter)
 library(kableExtra)
 load("~/Documents/website/Sentiment-Analysis/Untitled.RData")
 ```
-[_Julio C. Gonzalez_](https://jcgonzalez14.github.io/) 
+[Julio C. Gonzalez](https://jcgonzalez14.github.io/) 
 
-_May 8, 2018_
+_June 21, 2018_  
 
-!Working Document!
-
-Add proposed reading time. 
+Estimated Reading time: ~18 mins  
 
 <br>
 
@@ -46,17 +44,17 @@ Add proposed reading time.
 
 Hi there, the Stats Whisperer here, back presenting a hot topic these days in the tech community and a very active area of research which is natural-language processing (NLP for short). But first, what is natural-language processing? According to Wikipedia, it is "[an area of computer science and artificial intelligence concerned with the interactions between computers and human languages](https://en.wikipedia.org/wiki/Natural-language_processing){target="_blank"}." In the age of the pervasive virtual assistant like Apple's Siri and Amazon's Alexa, NLP is the engine that drives this ubiquitous technology. 
 
-The field of NLP is deep and extensive that can feel a bit overwhelming so let's take a look at it from a high level. The following diagram gives a rough explanation as to what encompasses NLP and how it is loosely divided. 
+The field of NLP is deep and extensive so let's take a look at it from a high level. The following diagram gives a rough explanation as to what encompasses NLP and how it is loosely divided. 
 
 ![Natural Language Processing Diagram](NLP_diagram2.png)
 
-As you can see, there are many applications of NLP but will narrow our focus today to the first two categories, syntax and semantic and I'll be explaining what those are along the way. But first I want to ask you a simple question: what movies do you like to see and why?
+As you can see, there are many applications of NLP but we will narrow our focus today to the first two categories; syntax and semantic. Don't worry. I'll be explaining what those are along the way. But first I want to ask you a simple question: what movies do you like to see and why?
 
 <br>
 
 #NLP for Movie Reviews
 
-Ever had a heated discussion with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treasure movie comes out? Naturally, you go, faute-de-mieux, online to investigate what the reviews are for the movie. Well, I won't get into the particulars as to why those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statistically inclined website, FiveThirtyEight.com) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Sure, some people add their comments on the movie but does that mean that people from all over the world will have the same impression or opinion? I would argue that they don't. Plus, who has time to read all those reviews? Furthermore, these movie rating sites are highly correlated with each and here we have some [data](https://github.com/fivethirtyeight/data/tree/master/fandango){target="_blank"} to confirm that. 
+Ever had a heated discussion with your friends about a particular movie or actor? While you have a strong distaste for anything Nicolas Cage, your "amigo" is in a infatuated trance with all of his movies. So what do you do when the next National Treasure movie comes out? Naturally, you go, faute-de-mieux, online to investigate what the reviews are for the movie. Well, I won't get into the particulars as to why those movie reviews are flawed (actually [here](https://fivethirtyeight.com/features/ghostbusters-is-a-perfect-example-of-how-internet-ratings-are-broken/){target="_blank"} is a very detailed article expanding on this issue from my favorite statistically inclined website, FiveThirtyEight.com) but one salient issue is that these reviews are one dimensional. All they do is give a score from 1 to 10 or 1 to 5 stars for a particular movie but they don't tell you _why_ they are given this score. Sure, some people add their comments on the movie but does that mean that people from all over the world will have the same impression or opinion? I would argue that they don't. Plus, who has time to read all those reviews anyways? Furthermore, these movie rating sites are highly correlated with each and here we have some [data](https://github.com/fivethirtyeight/data/tree/master/fandango){target="_blank"} to confirm that. 
 
 ```{r, warning=FALSE, message=FALSE, eval=FALSE, include=FALSE}
 fandango <- read_csv("~/Documents/website/Sentiment-Analysis/fandango_score_comparison.csv")
@@ -90,20 +88,20 @@ Using the data we acquired from FiveThirtyEight.com, we did a simple correlation
 
 We observe that all scores are above 0.6, indicating a positive correlation between all the major movie review websites. What this is saying is that whatever score you see on one website then you pretty much have an idea what the score is on the other websites. The main point is that there is no variety in terms of scoring while in real life we see people disagree about movies all the time.  
 
-I propose a solution: why don't we use the massive amount of user generated data of social networks to try and understand what are the reasons a user _feels_ a certain way towards a movie. Instead of using the small sample size of the users on movie review sites, let's include a larger, more diverse and a more representative sample of what the average paying customer that drives movie success. In addition, we might be able to extract what elements of movies makes it more likely for a good review. I don't mean to get all Freudian but it could give us a window into the subconscious feelings towards a particular movie.
+I propose a solution: why don't we use the massive amount of user generated data of social networks to try and understand what are the reasons a user _feels_ a certain way towards a movie. Instead of using the small sample size of the users on movie review sites, let's include a larger, more diverse and a more representative sample of what the average paying customer that drives movie success. In addition, we might be able to extract what elements of movies makes it more likely for a good review. I don't mean to get all Freudian but it could give us a window into the subconscious feelings towards a particular movie. NLP has something called sentiment analysis which allows a machine to extract the feelings of text (crazy, I know). If we could use sentiment analysis on social media data then "winner winner chicken dinner."
 
-If aren't really buying the credibility or impact social media can have on a business then let's look at what happened to Snapchat Inc.
+If you aren't really buying the credibility or impact social media can have on a business then let's look at what happened to Snapchat Inc.
 
-Can you imagine a company losing $1.3 billion (not a typo, as in 1,300,000,000 bucks) for a single tweet? Well that was what reportedly happened to Snapchat Inc. when [Kylie Jenner negatively tweeted about Snapchat allegedly dropping their stock value by 6.1%](https://www.bloomberg.com/news/articles/2018-02-22/snap-royalty-kylie-jenner-erased-a-billion-dollars-in-one-tweet){target="_blank"}. 
+Can you imagine a company losing $1.3 billion (not a typo, as in 1,300,000,000 bucks) for a single tweet? Well that was what reportedly happened to Snapchat Inc. when [Kylie Jenner negatively tweeted about Snapchat allegedly dropping their stock value by 6.1%](https://www.bloomberg.com/news/articles/2018-02-22/snap-royalty-kylie-jenner-erased-a-billion-dollars-in-one-tweet){target="_blank"}. If that won't make heads turn, then nothing will. 
 
 
 <br>
 
 ##Deadpool 2
 
-To see the power of NLP in action, we are going to acquire data about a recent movie. For no particular reason other than the fact that I loved the first Deadpool movie and am a huge Marvel movie fan, even though my all-time favorite superhero is Batman (Justice League was hard pill to swallow), we are going to use [Deadpool 2](https://en.wikipedia.org/wiki/Deadpool_2) for this example. 
+To see the power of NLP in action, we are going to acquire data about a recent movie. For no particular reason other than the fact that I loved the first Deadpool movie and am a huge Marvel movie fan even though my all-time favorite superhero is Batman (Justice League was hard pill to swallow), we are going to use [Deadpool 2](https://en.wikipedia.org/wiki/Deadpool_2) for this example. 
 
-In order to conduct this analysis, the most important thing we will need will be the data. The great thing about Twitter is the existance of an API ([application programming interface](https://medium.freecodecamp.org/what-is-an-api-in-english-please-b880a3214a82){target="_blank"}) where instead of writing a script that will scrap the tweets from a webpage, we have direct access to the database where all the data on the tweets lives. On top of that, there is an R package that has all the code wrapped up in a function that will do all of the leg work for you. All you have to do is pass the parameters for what you want to search for and you're off to the races. Let's see how it works. 
+In order to conduct this analysis, the most important thing we will need will be the data. The great thing about Twitter is the existence of an API ([application programming interface](https://medium.freecodecamp.org/what-is-an-api-in-english-please-b880a3214a82){target="_blank"}) where instead of writing a script that will scrap the tweets from a webpage, we have direct access to the database where all the data on the tweets lives. On top of that, there is an R package that has all the code wrapped up in a function that will do all of the leg work for you. All you have to do is pass the parameters for what you want to search for and you're off to the races. Let's see how it works. 
 
 ```{r, eval=FALSE}
 ## Pulling Twitter Data 
@@ -116,7 +114,7 @@ DP_051718 <- searchTwitter("Deadpool", n=17000, lang="en",
 DP_051718<- twListToDF(DP_051718)     # Convert into a data frame for analysis.
 ``` 
 
-In the above code, we pulled 17,000 tweets for each of the two days leading up to the premiere (movie debuted on May 18, 2018 in the US). Our goal is to analyze the sentiment before the movie was released to use it as a reference point and compare it to the sentiment after the movie premiered to see if we can find something insightful. We are only pulling 17,000 tweets for each day because the twitter API imposes a limit to prevent you from downloading their entire database and replicating their website. If you are unsatisfied with this limitation, you can actually get a [premium API](https://developer.twitter.com/en/products/products-overview){target="_blank"} or you can also consider using [streaming data](https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data.html){target="_blank"}. It gets a little more complicated because of the technicality to implement but it is an option for scaleable projects.
+In the above code, we pulled 17,000 tweets for each of the two days leading up to the premiere (movie debuted on May 18, 2018 in the US). Our goal is to analyze the sentiment before the movie was released to use it as a reference point and compare it to the sentiment after the movie premiered to see if we can find something insightful. We are only pulling 17,000 tweets for each day because the twitter API imposes a limit to prevent you from downloading their entire database and replicating their website. If you are unsatisfied with this limitation, you can actually get a [premium API](https://developer.twitter.com/en/products/products-overview){target="_blank"} or you can also consider using [streaming data](https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data.html){target="_blank"}. It gets a little more complicated because of the technicality to implement but it is an option for scalable projects.
 
 
 Going back to our data, here is where we combine the data for the two days we pulled into a single data frame.
@@ -148,7 +146,7 @@ Every now and then, I like to include special topics (like regular expression) t
 
 Going back to our data. First, we will create a vector that contains all of the text from the tweets. 
 
-We will see that the tweets are "dirty" meaning that they contain usefulness information that is not needed to do sentiment analysis. In order to clean them up, we will use something called [regular expressions](https://en.wikipedia.org/wiki/Regular_expression){target="_blank"}. You can think of regular expression as a very powerful string search language that can be used to replace individual letters or entire sections of text.
+We will see that the tweets are "dirty" meaning that they contain useless information that is not needed to do sentiment analysis. In order to clean them up, we will use something called [regular expressions](https://en.wikipedia.org/wiki/Regular_expression){target="_blank"}. You can think of regular expression as a very powerful string search language that can be used to replace individual letters or entire sections of text.
 
 For example, this the text for the viral aforementioned tweet.
 ```{r}
@@ -158,7 +156,7 @@ twtxt[2]
 
 We can see it contains a link, a screen name and special characters which are of no use to us. Before we are able to remove them, we must first identify them using regular expressions. 
 
-```{r, eval=FALSE}
+```{r}
 twtxt <- gsub("http://t.co/[a-z,A-Z,0-9]*{8}" , "", twtxt)     	# Clean up Tweets. Remove certain characters.
 twtxt <- gsub("https://t.co/[a-z,A-Z,0-9]*{8}", "", twtxt)
 twtxt <- gsub("RT", "", twtxt) # Removes "RT" indicating a retweet
@@ -169,17 +167,17 @@ twtxt <- gsub("@.*:", "", twtxt) # Removes screen names from retweets
 twtxt[2] #print clean text
 ``` 
 
-After we removed all the unuseful fluff, we are left with clean and lean text vector that we can use to extract the sentiment of the tweet. 
+After we removed all the useless fluff, we are left with clean and lean text vector that we can use to extract the sentiment of the tweet. 
 
 <br>
 
 #Syntax NLP
 
-As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get the core of sentiment we must first remove stopwords. Stopwords are simply commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we remove numbers and punctuation as well. The following code executes this:
+As we get closer to sentiment analysis, let's take a step back. Even though our tweets are "clean", they still contain irrelevant information. In order to get to the core of sentiment we must first remove stopwords. Stopwords are simply commonly used words that do not contribute to the significance of the overall text. Examples include: the, to, and, that, etc. In addition, we remove numbers and punctuation as well. The following code executes this:
 
 ```{r,eval=FALSE}
 Encoding(twtxt) <- "latin1"     				
-twtxt <- iconv(twtxt, from="latin1", to="ASCII", sub="")     	# Convert to ASCII format.
+twtxt <- iconv(twtxt, from="latin1", to="ASCII", sub="")    # Convert to ASCII format.
 
 mycorpus <- Corpus(VectorSource(twtxt))     			# Create corpus.
 mycorpus <- tm_map(mycorpus, content_transformer(tolower))	# Create corpus of text while making all characters lowercase.
@@ -203,7 +201,7 @@ As expected, we see the word cloud is dominated by the words found in the viral 
 
 #Semantic NLP
 
-Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does is it compares the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply a negative sentiment. It is important to highlight that the score will depend on the dictionary that you are using. First up, we will use a combined and augmented version of Jocker's ([2017](https://github.com/trinker/sentimentr){target="_blank"}) & [Rinker's](https://cran.r-project.org/web/packages/lexicon/lexicon.pdf){target="_blank"} augmented Hu & Liu ([2004](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf){target="_blank"}) dictionaries.
+Now we get to the meat and potatoes of NLP and apply sentiment analysis to the our text corpus. Before we do that, let's look into what sentiment analysis is and what it actually does. There are many types of sentiment analyses so we'll start with a simple one, polarity score. What this does is it grabs the words in each tweet and compares it to a dictionary of polarized words. A positive score indicates a positive sentiment while the converse will imply a negative sentiment. It is important to highlight that the score will depend on the dictionary that you are using. First up, we will be using a combined and augmented version of Jocker's ([2017](https://github.com/trinker/sentimentr){target="_blank"}) & [Rinker's](https://cran.r-project.org/web/packages/lexicon/lexicon.pdf){target="_blank"} augmented Hu & Liu ([2004](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf){target="_blank"}) dictionaries.
 
 ```{r, eval=FALSE}
 # Perform the sentiment analysis on Tweets.
@@ -227,7 +225,7 @@ ggplot(data=aggtwitter,aes(x=Group.1, y=x))+geom_bar(stat="identity", fill="#EA1
 ggtitle("Sentiment per Tweet") + labs(x="Tweet", y="Sentiment Score") + theme_dark()
 ``` 
 
-Here we see the sentiment scores plotted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral. Feel free to zoom in the following histogram by selecting across several columns.
+Here we see the sentiment scores plotted across all of our tweets. We observe a few crazy scores here and there but for the most part we see that most tweets are neutral. Feel free to zoom in the following interactive histogram by selecting across several columns.
 
 ```{r, echo=FALSE}
 hchart(aggtwitter$x, type = 'histogram', name = "Cumulative Sentiments",
@@ -285,7 +283,7 @@ mean(sent_syuzhet)     # average sentiment
 
 Using the syuzhet dictionary, we now get an average sentiment score of about 0.2 which is not that terribly more than what we got previously. 
 
-Here is this an interactive histogram.
+Here is this an interactive histogram using the syuzhet dictionary.
 ```{r,echo=FALSE}
 df = data.frame(sent_syuzhet)
 
@@ -384,7 +382,7 @@ Having inspected the sentiment prior to the premier to Deadpool 2, we would like
 
 In order to do that, we will redo the same data pulling and data cleaning drill we did earlier only this time we'll use data from the day it premiered and the day after.
 
-Pulling the data from Twitter:
+Pulling the data from Twitter for the day it premiered and the day after:
 ```{r, eval=FALSE}
 ## Pulling Twitter Data 
 DP_051818 <- searchTwitter("Deadpool", n=34000, lang="en",
@@ -398,7 +396,7 @@ DP_051918<- twListToDF(DP_051819)     # Convert into a data frame for analysis.
 deadpool2 = rbind(DP_051818,DP_051918) # Combine into a single dataframe.
 ```
 
-Clean up using regular expression.
+Clean up using regular expression:
 ```{r, eval=FALSE}
 twtxt2 <- deadpool2$text 
 twtxt2 <- gsub("http://t.co/[a-z,A-Z,0-9]*{8}" , "", twtxt2)     	# Clean up Tweets. Remove certain characters.
@@ -476,7 +474,7 @@ hchart(aggtwitter2$x, type = 'histogram', name = "Cumulative Sentiments",
 ```{r}
 mean(sent_combo2$sentiment)    # average sentiment
 ``` 
-Even though the average poliarity score is only 0.1102, it is almost twice as much as the 0.056 we got the first time around. It looks like people are tweeting positive things about Deadpool 2 as a reflection of the their opinion of the movie.
+Even though the average polarity score is only 0.1102, it is almost twice as much as the 0.056 we got the first time around. It looks like people are tweeting positive things about Deadpool 2 as a reflection of the their opinion of the movie.
 
 Now let's try the more deeper and detailed sentiment analysis to see if this further supports our findings. 
 ```{r, eval=FALSE}
@@ -561,13 +559,13 @@ kable(tbl2[1:8,]) %>% kable_styling(bootstrap_options = c("striped", "hover","re
 ```
 
 
-While on one hand we observe a large increase in the total scores of surprise and joy paired with a meager decrease in sadness, we simultaneously observe an increase of about 40%, 16% and 11% in anger, fear and disgust respectively.
+While on one hand we observe a large increase in the total scores of the surprise and joy categories paired with a meager decrease in sadness, we simultaneously observe an increase of about 40%, 16% and 11% in anger, fear and disgust respectively.
 
 Even though we saw an average increase in overall positive score, we simultaneously observe an increase in negative sentiments. The large increase in surprise scores seems to overshadow all the small increments of negative scores. So it looks like Deadpool 2 is doing well as a whole but not in every facet of the movie. 
 
-A word of caution is advised with the intrepations of these sentiments as the feelings of fear and disgust are not always pernicious premonitions. Consider how the success of a horror movie depends on you actually feeling scared which is strictly a negative emotion while it, paradoxically, invokes a positive attitude towards that particular film. Although Deadpool is an overall comical film, it does make you laugh by intertwining gory violence, drug use and sexual references to it's humor.  
+A word of caution is advised with the interpretations of these sentiments as the feelings of fear and disgust are not always pernicious premonitions. Consider how the success of a horror movie depends on you actually feeling scared which is strictly a negative emotion while it, paradoxically, invokes a positive attitude towards that particular film. Although Deadpool is an overall comical film, it does make you laugh by intertwining gory violence, drug use and sexual references to it's humor.  
 
-Akin to the multitute of interpretations to the Leonardo Da Vinci's Mona Lisa masterpiece, sentiment analysis gives us a compiled sentiment portrait of Deadpool tweets but it up to the viewer on how to interpret these findings.
+Akin to the multitude of interpretations to Leonardo da Vinci's Mona Lisa masterpiece, sentiment analysis gives us a sentiment portrait of Deadpool tweets but it up to the viewer on how to interpret these findings.
 
 <br>
 
@@ -582,7 +580,7 @@ Thinking on a much larger scale, we can expand this to include multiple social n
 
 To bring this home, we have unprecedented access to a multi facet view towards not just the film industry but pretty much anything you can think of. In truth, while we now have more data available, extracting the signal rather than the noise from this data is, even today, an incredibly difficult task. If you pile privacy concerns on top of that, it can really get messy. Sure movie production companies with deep pockets can use this information to improve their bottom line, but the question is _should_ they have access to this type of information. Who knew that a simple tweet provides so much information about you.
 
-Therefore, I will leaving you with a movie quote. In the words of Peter Parker in remembrance to his uncle Ben at the end of the Spider-Man movie,
+So, I will leaving you with a movie quote. In the words of Peter Parker in remembrance to his uncle Ben at the end of the Spider-Man movie,
 
 > ["With great power comes, great responsibility."](https://www.youtube.com/watch?v=kb4jEHmH_kU){target="_blank"}
 
